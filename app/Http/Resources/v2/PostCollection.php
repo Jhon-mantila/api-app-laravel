@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PostCollection extends ResourceCollection
 {
+    //public $collects = PostResource::class;
     /**
      * Transform the resource collection into an array.
      *
@@ -14,6 +15,17 @@ class PostCollection extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        //return parent::toArray($request);
+        return [
+            'data' => $this->collection,
+            'meta' => [
+                'organization' => 'Esquina Web',
+                'authors' => [
+                    'Jhon Mantilla',
+                    'EsquinaWeb'
+                    ]
+                ],
+            'type' => 'articles'  
+            ];
     }
 }
