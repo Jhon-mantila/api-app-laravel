@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+
 class LoginController extends Controller
 {
     //
@@ -14,16 +17,43 @@ class LoginController extends Controller
         
         $this->validateLogin($request);
 
-        //login true
+        
+       $user = User::where('email', $request->email)->first();
 
-        //login false
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        return response()->json([
+            'token'=>$user->createToken($request->name, ['*'], now()->addWeek())->plainTextToken,
+            'expiration' => now()->addWeek(),
+            'Message' => 'Succes'
+        ]);
+        
+        
+
+        /*$credentials = request(['email', 'password']);
+        if (Auth::attempt($credentials)){
+            return response()->json([
+                'token'=> $request->user()->createToken($request->name, ['*'], now()->addWeek())->plainTextToken,
+                'expiration' => now()->addWeek(),
+                'Message' => 'Succes'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Unauthorized sadsdasd'
+        ], 401);*/
+      
     }
 
     public function validateLogin(Request $request){
-        return $request->validate([
-            'email'=> 'require|email',
-            'password'=> 'require',
-            'name'=> 'require',
+        return  $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'name' => 'required',
         ]);
     }
 }
